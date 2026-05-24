@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+/* =============================================
+   DESIGN SYSTEM — Single Source of Truth
+   ============================================= */
+:root {
+  /* Background Palette */
+  --bg-dark:    #080810;   /* dark sections: Hero, Projects, Education, Contact */
+  --bg-light:   #F0EDE6;   /* light sections: About, Stack — warm off-white */
+  --bg-mid:     #111118;   /* subtle mid-dark variant */
+
+  /* Foreground */
+  --fg-dark:    #FFFFFF;   /* text on dark */
+  --fg-light:   #0A0A0A;   /* text on light */
+
+  /* Brand Accent */
+  --accent-red:    #FF3333;  /* cursor, hover arrows, active indicators */
+  --accent-yellow: #E6FF00;  /* ticket strip, CTA fills */
+  --accent-stroke: 2px;
+
+  /* Legacy aliases (keep Tailwind happy) */
+  --background: var(--bg-dark);
+  --foreground: var(--fg-dark);
+  --accent: #000000;
+  --gradient-start: #7bdcb5;
+  --gradient-end:   #b983d4;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --font-bebas: var(--font-bebas), sans-serif;
+  --font-syne:  var(--font-syne), sans-serif;
+  --font-mono:  var(--font-space-mono), monospace;
+}
+
+/* =============================================
+   BASE
+   ============================================= */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hide scrollbar across all browsers */
+html::-webkit-scrollbar { display: none; }
+html { scrollbar-width: none; -ms-overflow-style: none; }
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--fg-dark);
+  font-family: var(--font-syne);
+  cursor: none !important;
+  overflow-x: hidden;
+}
+
+a, button, [role="button"], input, textarea, select {
+  cursor: none !important;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =============================================
+   SELECTION COLOR — unified
+   ============================================= */
+::selection {
+  background: var(--accent-yellow);
+  color: #000;
+}
+
+/* =============================================
+   LENIS SMOOTH SCROLL
+   ============================================= */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* =============================================
+   SPLITTING.JS
+   ============================================= */
+.word {
+  overflow: hidden;
+  display: inline-flex;
+  vertical-align: top;
+}
+.char { display: inline-block; }
+
+/* =============================================
+   MARQUEE / TICKER
+   ============================================= */
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-scroll      { animation: ticker 20s linear infinite; }
+.animate-scroll-slow { animation: ticker 40s linear infinite; }
+
+/* Pause on hover for accessibility */
+.animate-scroll:hover, .animate-scroll-slow:hover {
+  animation-play-state: paused;
+}
+
+/* =============================================
+   SECTION UTILITY CLASSES
+   ============================================= */
+.section-dark  { background-color: var(--bg-dark);  color: var(--fg-dark);  }
+.section-light { background-color: var(--bg-light); color: var(--fg-light); }
+
+/* =============================================
+   HIDE SCROLLBAR (horizontal carousels)
+   ============================================= */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* =============================================
+   OFF-WHITE QUOTE PUNCTUATION
+   The .ow-quote wrapper adds the branded
+   typographic quotation marks used throughout
+   ============================================= */
+.ow-quote::before { content: '"'; }
+.ow-quote::after  { content: '"'; }
+
+/* =============================================
+   SECTION DIVIDERS — thin horizontal rule
+   used between sections for visual rhythm
+   ============================================= */
+.section-rule {
+  height: 1px;
+  width: 100%;
+  background: currentColor;
+  opacity: 0.15;
+}
+
+/* =============================================
+   HOVER TARGET INDICATOR
+   Adds a subtle underline strip for nav links
+   ============================================= */
+.link-underline {
+  position: relative;
+}
+.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--accent-red);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.link-underline:hover::after { width: 100%; }
+
+/* =============================================
+   REVEAL LINE (used in Contact & elsewhere)
+   ============================================= */
+.reveal-line-wrapper { overflow: hidden; display: block; }
+
+/* =============================================
+   NOISE TEXTURE OVERLAY
+   Subtle grain for premium feel on dark sections
+   ============================================= */
+.noise-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+}
