@@ -11,9 +11,9 @@ export default function MagneticElement({ children }) {
 
     const el = ref.current;
     
-    // Smooth elastic spring back
-    const xTo = gsap.quickTo(el, "x", { duration: 1, ease: "elastic.out(1, 0.3)" });
-    const yTo = gsap.quickTo(el, "y", { duration: 1, ease: "elastic.out(1, 0.3)" });
+    // Smooth elastic spring back - more aggressive bounce
+    const xTo = gsap.quickTo(el, "x", { duration: 1.5, ease: "elastic.out(1.5, 0.2)" });
+    const yTo = gsap.quickTo(el, "y", { duration: 1.5, ease: "elastic.out(1.5, 0.2)" });
 
     const handleMouseMove = (e) => {
       const { clientX, clientY } = e;
@@ -21,9 +21,9 @@ export default function MagneticElement({ children }) {
       const x = clientX - (left + width / 2);
       const y = clientY - (top + height / 2);
       
-      // The pull strength (0.35 means it pulls 35% towards the cursor)
-      xTo(x * 0.35);
-      yTo(y * 0.35);
+      // The pull strength (0.5 means it pulls 50% towards the cursor)
+      xTo(x * 0.5);
+      yTo(y * 0.5);
     };
 
     const handleMouseLeave = () => {

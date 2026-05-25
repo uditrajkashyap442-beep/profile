@@ -8,42 +8,39 @@ export default function CustomCursor() {
   const innerRef   = useRef(null);
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!mounted) return;
+    
+    // Disable entirely on touch devices
     if (window.matchMedia("(hover: none)").matches) return;
 
     const wrapper = wrapperRef.current;
     const inner   = innerRef.current;
     if (!wrapper || !inner) return;
 
-    let lastX     = -300;
-    let lastY     = -300;
-    let visible   = false;
-    let hovering  = false;
-    let scrolling = false;
-    let scrollTimer = null;
+    let lastX = -300;
+    let lastY = -300;
+    let visible = false;
+    let hovering = false;
 
-    // Centre on pointer; start offscreen + invisible
+    // Start offscreen and invisible
     gsap.set(wrapper, { x: lastX, y: lastY, xPercent: -50, yPercent: -50, opacity: 0 });
     gsap.set(inner,   { scale: 1, rotation: 0, transformOrigin: "50% 50%" });
 
     const xTo = gsap.quickTo(wrapper, "x", { duration: 0.1, ease: "power2.out" });
     const yTo = gsap.quickTo(wrapper, "y", { duration: 0.1, ease: "power2.out" });
 
-    // ── Mouse move ──────────────────────────────────────────────────────────
     const onMove = (e) => {
+      // Ignore synthetic scroll events
+      if (e.clientX === 0 && e.clientY === 0) return;
+
       lastX = e.clientX;
       lastY = e.clientY;
-
-      // Returning from scroll — snap back instantly then resume tracking
-      if (scrolling) {
-        scrolling = false;
-        clearTimeout(scrollTimer);
-        gsap.set(wrapper, { x: lastX, y: lastY });
-      }
-
       xTo(lastX);
       yTo(lastY);
 
@@ -53,7 +50,6 @@ export default function CustomCursor() {
       }
     };
 
-    // ── Hover state ─────────────────────────────────────────────────────────
     const onOver = (e) => {
       const hit = !!e.target.closest(
         "a, button, [role='button'], .hover-target, input, textarea, select"
@@ -66,49 +62,21 @@ export default function CustomCursor() {
         : { scale: 1,   rotation: 0,   duration: 0.45, ease: "elastic.out(1,0.5)", overwrite: "auto" }
       );
     };
-
-    // ── Scroll — park in top-left corner ───────────────────────────────────
+    
+    // Instantly snap to the current mouse position when scrolling so it doesn't float away
     const onScroll = () => {
       if (!visible) return;
-
-      if (!scrolling) {
-        scrolling = true;
-        // Glide to top-left corner
-        gsap.to(wrapper, {
-          x: 48,
-          y: 48,
-          duration: 0.55,
-          ease: "power3.out",
-          overwrite: "auto",
-        });
-        // Also shrink & un-rotate while parked
-        gsap.to(inner, {
-          scale: 0.7,
-          rotation: 0,
-          duration: 0.35,
-          ease: "power3.out",
-          overwrite: "auto",
-        });
-      }
-
-      // Reset the "scroll ended" timer on every scroll event
-      clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(() => {
-        scrolling = false;
-        // Restore scale when scroll stops (cursor returns on next mousemove)
-        gsap.to(inner, { scale: 1, duration: 0.3, ease: "power2.out", overwrite: "auto" });
-      }, 180);
+      gsap.set(wrapper, { x: lastX, y: lastY });
     };
 
-    window.addEventListener("mousemove", onMove,   { passive: true });
-    window.addEventListener("mouseover", onOver,   { passive: true });
-    window.addEventListener("scroll",    onScroll, { passive: true });
+    window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("mouseover", onOver, { passive: true });
+    window.addEventListener("scroll", onScroll,  { passive: true });
 
     return () => {
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseover", onOver);
-      window.removeEventListener("scroll",    onScroll);
-      clearTimeout(scrollTimer);
+      window.removeEventListener("scroll", onScroll);
     };
   }, [mounted]);
 

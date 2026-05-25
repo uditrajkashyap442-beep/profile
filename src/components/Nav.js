@@ -1,155 +1,165 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
+import CyclingWord from "./CyclingWord";
 
 export default function Nav() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const navRef = useRef(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const overlayRef = useRef(null);
+  const menuItemsRef = useRef([]);
+  const stickyHeaderRef = useRef(null);
 
+  // Menu open/close animation (Bouncy block slide down)
   useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-
-    const ctx = gsap.context(() => {
-      // On scroll: shrink pill slightly + increase opacity
-      gsap.to(navRef.current, {
-        scaleX: 0.96,
-        y: 4,
-        backgroundColor: "rgba(8, 8, 16, 0.75)",
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: document.body,
-          start: "top -60",
-          end: "top -220",
-          scrub: true,
-        },
+    if (isOpen) {
+      if (window.lenis) window.lenis.stop();
+      gsap.to(overlayRef.current, {
+        y: "0%",
+        duration: 1,
+        ease: "power4.out", // Smooth fast slide
       });
-    });
+      gsap.fromTo(
+        menuItemsRef.current,
+        { y: "100%", opacity: 0, scale: 0.9 },
+        { y: "0%", opacity: 1, scale: 1, duration: 0.8, stagger: 0.1, delay: 0.2, ease: "back.out(1.5)" }
+      );
+    } else {
+      if (window.lenis) window.lenis.start();
+      gsap.to(overlayRef.current, {
+        y: "-100%",
+        duration: 0.8,
+        ease: "power4.inOut",
+      });
+    }
+  }, [isOpen]);
 
-    return () => ctx.revert();
+  // Island header reveal animation on load
+  useEffect(() => {
+    // We remove the scroll trigger, the island is always visible and floats down on load
+    gsap.fromTo(stickyHeaderRef.current, 
+      { y: -100, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1.5, ease: "elastic.out(1, 0.75)", delay: 3.5 }
+    );
   }, []);
 
-  const navLinks = [
-    { name: "Work",    href: "#projects" },
-    { name: "Stack",   href: "#stack"    },
-    { name: "About",   href: "#about"    },
+  const toggleMenu = () => setIsOpen(!isOpen);
+
+  const handleLinkClick = (e, href) => {
+    e.preventDefault();
+    setIsOpen(false);
+    
+    setTimeout(() => {
+      if (href === "#" || href === "") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      
+      const target = document.querySelector(href);
+      if (target) {
+        const offset = target.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({
+          top: offset,
+          behavior: "smooth"
+        });
+      }
+    }, 800); // Wait for menu close animation
+  };
+
+  const links = [
+    { label: "INDEX", href: "#" },
+    { label: "ABOUT", href: "#about-details" },
+    { label: "WORK", href: "#projects" },
+    { label: "STACK", href: "#stack" },
+    { label: "CONTACT", href: "#contact" },
   ];
 
   return (
     <>
-      <div className="fixed top-5 left-0 w-full z-50 px-4 md:px-8 pointer-events-none">
-        <nav
-          ref={navRef}
-          className="mx-auto max-w-6xl rounded-[40px] bg-black/30 backdrop-blur-2xl border border-white/10 py-3 px-4 md:py-4 md:px-6 flex justify-between items-center pointer-events-auto shadow-[0_8px_32px_rgba(0,0,0,0.4)] origin-top"
-          style={{ transition: "background-color 0.4s ease" }}
+      {/* NorthGarden Style Floating Island Header */}
+      <div
+        ref={stickyHeaderRef}
+        className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] flex items-center justify-between min-w-[320px] md:min-w-[400px] bg-white/40 backdrop-blur-2xl border border-white/60 rounded-full px-6 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.05)] opacity-0"
+      >
+        <a
+          href="#"
+          onClick={(e) => handleLinkClick(e, "#")}
+          className="font-control-tnt text-xs md:text-sm uppercase tracking-widest text-[#1A1A1A] hover:text-[#333896] transition-colors font-bold"
         >
+          UDIT R. KASHYAP
+        </a>
 
-          {/* Logo */}
-          <a
-            href="#"
-            className="font-sans font-bold text-white text-lg md:text-xl tracking-tight hover-target ml-1 md:ml-3 leading-none opacity-90 hover:opacity-100 transition-opacity"
-          >
-            Udit Raj Kashyap
-          </a>
-
-          {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="font-sans text-sm font-bold text-white/70 hover:text-white px-5 py-2.5 rounded-full hover:bg-white/10 transition-all duration-200 hover-target tracking-wide uppercase"
-              >
-                {link.name}
-              </a>
-            ))}
-
-            <a
-              href="/resume.pdf"
-              target="_blank"
-              className="font-sans text-sm font-bold bg-[#E6FF00] text-black px-6 py-2.5 rounded-full hover:bg-white transition-all duration-200 hover-target ml-2 tracking-wide uppercase"
-            >
-              Resume
-            </a>
-
-            <a
-              href="#contact"
-              className="w-11 h-11 rounded-full flex items-center justify-center border border-white/20 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/40 transition-all duration-200 hover-target ml-1"
-              aria-label="Contact"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-              </svg>
-            </a>
-          </div>
-
-          {/* Mobile Toggle */}
-          <button
-            className="md:hidden w-10 h-10 rounded-full flex items-center justify-center border border-white/20 text-white/80 hover:bg-white/10 hover-target mr-1 transition-all"
-            onClick={() => setMobileMenuOpen(true)}
-            aria-label="Open menu"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="3" y1="8"  x2="21" y2="8"  />
-              <line x1="3" y1="16" x2="21" y2="16" />
-            </svg>
-          </button>
-        </nav>
+        <button
+          onClick={toggleMenu}
+          className="group flex items-center justify-center gap-2 uppercase font-control-tnt font-bold text-xs tracking-widest transition-colors bg-[#1A1A1A] text-white px-5 py-2 rounded-full hover:bg-[#FF4757]"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-white group-hover:animate-ping"></span>
+          {isOpen ? "CLOSE" : "MENU"}
+        </button>
       </div>
 
-      {/* Mobile Full-Screen Menu */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[60] bg-[#080810]/97 backdrop-blur-2xl flex flex-col justify-center px-8">
-          {/* Close */}
-          <button
-            className="absolute top-7 right-7 font-mono text-xs text-white/50 hover:text-white transition-colors hover-target tracking-widest uppercase"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            CLOSE ✕
-          </button>
+      {/* Full Screen Overlay (Vibrant block) */}
+      <div 
+        ref={overlayRef}
+        className="fixed inset-0 bg-gradient-to-br from-[#333896] to-[#1A1A2E] z-[90] flex flex-col items-center justify-center text-white overflow-hidden px-6"
+        style={{ transform: "translateY(-100%)" }}
+      >
+        {/* Upper Utility Bar inside menu */}
+        <div className="absolute top-8 md:top-12 left-6 right-6 md:left-24 md:right-24 flex justify-between items-center text-xs tracking-widest font-control-tnt font-bold text-white/60 z-10 border-b border-white/10 pb-6 uppercase">
+          <div className="flex flex-col gap-1">
+            <span className="opacity-50">PORTFOLIO 2026</span>
+            <span className="text-white">v2.0</span>
+          </div>
+          <div className="hidden md:flex flex-col items-end gap-1">
+            <span className="opacity-50">STATUS</span>
+            <span className="text-white flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#06BA63] animate-pulse"></span>
+              AVAILABLE FOR <CyclingWord words={['INTERNSHIPS', 'REMOTE-WORK']} />
+            </span>
+          </div>
+        </div>
 
-          {/* Ticker strip at top */}
-          <div className="absolute top-0 left-0 right-0 overflow-hidden border-b border-white/10 py-2 bg-[#E6FF00]">
-            <div className="flex whitespace-nowrap animate-scroll">
-              {[...Array(8)].map((_, i) => (
-                <span key={i} className="font-sans font-bold text-black text-xs uppercase tracking-widest px-6">
-                  UDIT RAJ KASHYAP · ECE · VIT VELLORE ·&nbsp;
-                </span>
-              ))}
+        {/* Background watermark */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[40vw] font-control-compressed font-black uppercase text-white/5 select-none pointer-events-none z-0 tracking-tighter mix-blend-overlay">
+          MENU
+        </div>
+
+        {/* Main Navigation Links */}
+        <nav className="flex flex-col items-center gap-2 md:gap-4 z-10 w-full max-w-4xl mt-12 md:mt-0">
+          {links.map((link, i) => (
+            <div key={i} className="overflow-hidden w-full text-center group">
+              <a 
+                href={link.href}
+                onClick={(e) => handleLinkClick(e, link.href)}
+                ref={el => menuItemsRef.current[i] = el}
+                className="inline-block font-control-compressed text-[clamp(40px,10dvh,120px)] font-black tracking-tighter uppercase hover:text-[#FFD500] hover:scale-105 hover:italic transition-all duration-300 leading-[0.85] text-white origin-center relative"
+              >
+                <span className="absolute -left-12 top-1/2 -translate-y-1/2 text-2xl opacity-0 group-hover:opacity-100 transition-opacity">✦</span>
+                {link.label}
+                <span className="absolute -right-12 top-1/2 -translate-y-1/2 text-2xl opacity-0 group-hover:opacity-100 transition-opacity">✦</span>
+              </a>
+            </div>
+          ))}
+        </nav>
+        
+        {/* Bottom Utility Bar inside menu */}
+        <div className="absolute bottom-6 md:bottom-12 left-6 right-6 md:left-24 md:right-24 flex flex-col md:flex-row justify-between items-center gap-4 uppercase text-xs tracking-widest font-control-tnt font-bold text-white/60 z-10 border-t border-white/10 pt-6">
+          <div className="flex flex-col text-center md:text-left gap-1">
+            <span className="opacity-50 hidden md:block">LOCATION</span>
+            <span className="text-white bg-white/10 px-4 py-2 rounded-full">VELLORE, INDIA</span>
+          </div>
+          <div className="flex gap-4">
+            <div className="flex flex-col gap-1 items-center md:items-end">
+              <span className="opacity-50 hidden md:block">SOCIALS</span>
+              <div className="flex gap-2">
+                <a href="https://github.com/UditRajkashyap442-beep" target="_blank" rel="noopener noreferrer" className="bg-white/10 px-4 py-2 rounded-full hover:bg-white hover:text-[#333896] text-white transition-all">GITHUB</a>
+                <a href="https://linkedin.com/in/udit-r-kashyap-828a5a320/" target="_blank" rel="noopener noreferrer" className="bg-white/10 px-4 py-2 rounded-full hover:bg-white hover:text-[#333896] text-white transition-all">LINKEDIN</a>
+              </div>
             </div>
           </div>
-
-          <nav className="flex flex-col space-y-2 mt-12">
-            {[
-              { name: "Work",    href: "#projects" },
-              { name: "Stack",   href: "#stack"    },
-              { name: "About",   href: "#about"    },
-              { name: "Resume",  href: "/resume.pdf" },
-              { name: "Contact", href: "#contact"  },
-            ].map((link, i) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="group flex items-center justify-between border-b border-white/10 py-6 hover-target"
-              >
-                <span className="font-sans font-black text-5xl text-white uppercase tracking-tighter group-hover:text-[#E6FF00] transition-colors duration-200">
-                  {link.name}
-                </span>
-                <span className="font-mono text-white/30 text-sm group-hover:text-[#FF3333] transition-colors">
-                  0{i + 1}
-                </span>
-              </a>
-            ))}
-          </nav>
-
-          <p className="absolute bottom-8 left-8 font-mono text-xs text-white/20 uppercase tracking-widest">
-            © 2026 Udit Raj Kashyap
-          </p>
         </div>
-      )}
+      </div>
     </>
   );
 }

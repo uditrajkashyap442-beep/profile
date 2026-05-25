@@ -1,23 +1,32 @@
-import { Bebas_Neue, Syne, Space_Mono } from "next/font/google";
+import { Inter, Oswald, Dancing_Script, Montserrat } from "next/font/google";
 import "./globals.css";
+import PageTransition from "@/components/PageTransition";
+import Cursor from "@/components/Cursor";
+import Nav from "@/components/Nav";
 
-const bebasNeue = Bebas_Neue({
-  weight: "400",
-  variable: "--font-bebas",
+const inter = Inter({
   subsets: ["latin"],
+  variable: "--font-control",
   display: "swap",
 });
 
-const syne = Syne({
-  variable: "--font-syne",
+const oswald = Oswald({
   subsets: ["latin"],
+  variable: "--font-control-compressed",
   display: "swap",
 });
 
-const spaceMono = Space_Mono({
-  weight: ["400", "700"],
-  variable: "--font-space-mono",
+const dancingScript = Dancing_Script({
   subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-control-cursive",
+  display: "swap",
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-control-tnt",
   display: "swap",
 });
 
@@ -41,7 +50,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${bebasNeue.variable} ${syne.variable} ${spaceMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${oswald.variable} ${dancingScript.variable} ${montserrat.variable} h-full antialiased`}
     >
       <head>
         <meta httpEquiv="Content-Security-Policy"
@@ -58,9 +67,22 @@ export default function RootLayout({ children }) {
         <meta httpEquiv="X-Frame-Options" content="DENY" />
         <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
         <meta httpEquiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains" />
-        <style>{`body{background:#080810}`}</style>
+        <style>{`body{background:#F4F0EA}`}</style>
       </head>
-      <body className="min-h-full flex flex-col font-syne bg-[#080810] selection:bg-[#E6FF00] selection:text-black">
+      <body className="min-h-full flex flex-col font-control selection:bg-vivid-azure selection:text-black">
+        {/* Global Grain Overlay */}
+        <div className="pointer-events-none fixed inset-0 z-[9999] opacity-[0.03] mix-blend-multiply">
+          <svg className="absolute inset-0 w-full h-full">
+            <filter id="noise">
+              <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
+            </filter>
+            <rect width="100%" height="100%" filter="url(#noise)" />
+          </svg>
+        </div>
+        
+        <Cursor />
+        <Nav />
+        <PageTransition />
         {children}
       </body>
     </html>

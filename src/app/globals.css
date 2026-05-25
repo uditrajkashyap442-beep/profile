@@ -1,38 +1,54 @@
 @import "tailwindcss";
 
 /* =============================================
-   DESIGN SYSTEM — Single Source of Truth
+   VIBRANT / POPPY THEME (Valentin Gassend Style)
    ============================================= */
 :root {
-  /* Background Palette */
-  --bg-dark:    #080810;   /* dark sections: Hero, Projects, Education, Contact */
-  --bg-light:   #F0EDE6;   /* light sections: About, Stack — warm off-white */
-  --bg-mid:     #111118;   /* subtle mid-dark variant */
+  /* Soft & Vibrant Colors */
+  --color-canvas-cream: #F4F0EA;  /* Default soft background */
+  --color-canvas-pink: #FFD1DC;   /* Soft pink */
+  --color-canvas-blue: #CDE2FF;   /* Soft blue */
+  --color-ink-dark: #1A1A1A;      /* Text on light backgrounds */
+  --color-ink-light: #FAFAFA;     /* Text on dark backgrounds */
+  
+  /* Poppy Accent Colors */
+  --color-poppy-red: #FF4757;
+  --color-poppy-blue: #333896;
+  --color-poppy-green: #06BA63;
+  --color-poppy-pink: #FA60BE;
+  --color-poppy-purple: #D0BCFF;
+  --color-poppy-yellow: #FFD500;
 
-  /* Foreground */
-  --fg-dark:    #FFFFFF;   /* text on dark */
-  --fg-light:   #0A0A0A;   /* text on light */
+  /* Typography */
+  --font-control: var(--font-control), ui-sans-serif, system-ui, sans-serif;
+  --font-control-compressed: var(--font-control-compressed), ui-sans-serif, system-ui, sans-serif;
+  --font-control-cursive: var(--font-control-cursive), cursive;
+  --font-control-tnt: var(--font-control-tnt), ui-sans-serif, system-ui, sans-serif;
 
-  /* Brand Accent */
-  --accent-red:    #FF3333;  /* cursor, hover arrows, active indicators */
-  --accent-yellow: #E6FF00;  /* ticket strip, CTA fills */
-  --accent-stroke: 2px;
-
-  /* Legacy aliases (keep Tailwind happy) */
-  --background: var(--bg-dark);
-  --foreground: var(--fg-dark);
-  --accent: #000000;
-  --gradient-start: #7bdcb5;
-  --gradient-end:   #b983d4;
+  /* Theme transition properties */
+  --current-bg: var(--color-canvas-cream);
+  --current-fg: var(--color-ink-dark);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-accent: var(--accent);
-  --font-bebas: var(--font-bebas), sans-serif;
-  --font-syne:  var(--font-syne), sans-serif;
-  --font-mono:  var(--font-space-mono), monospace;
+@theme {
+  /* Tailwind Colors Mapping */
+  --color-canvas-cream: var(--color-canvas-cream);
+  --color-canvas-pink: var(--color-canvas-pink);
+  --color-canvas-blue: var(--color-canvas-blue);
+  --color-ink-dark: var(--color-ink-dark);
+  --color-ink-light: var(--color-ink-light);
+  --color-poppy-red: var(--color-poppy-red);
+  --color-poppy-blue: var(--color-poppy-blue);
+  --color-poppy-green: var(--color-poppy-green);
+  --color-poppy-pink: var(--color-poppy-pink);
+  --color-poppy-purple: var(--color-poppy-purple);
+  --color-poppy-yellow: var(--color-poppy-yellow);
+
+  /* Typography */
+  --font-control: var(--font-control);
+  --font-control-compressed: var(--font-control-compressed);
+  --font-control-cursive: var(--font-control-cursive);
+  --font-control-tnt: var(--font-control-tnt);
 }
 
 /* =============================================
@@ -53,33 +69,114 @@ html::-webkit-scrollbar { display: none; }
 html { scrollbar-width: none; -ms-overflow-style: none; }
 
 body {
-  background-color: var(--bg-dark);
-  color: var(--fg-dark);
-  font-family: var(--font-syne);
-  cursor: none !important;
+  background-color: var(--current-bg);
+  color: var(--current-fg);
+  font-family: var(--font-control);
   overflow-x: hidden;
+  transition: background-color 1s cubic-bezier(0.85, 0, 0.15, 1),
+              color 1s cubic-bezier(0.85, 0, 0.15, 1);
 }
 
-a, button, [role="button"], input, textarea, select {
-  cursor: none !important;
-}
-
-/* =============================================
-   REDUCED MOTION
-   ============================================= */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+@media (pointer: fine) {
+  body {
+    cursor: none !important;
   }
+  * { cursor: none !important; }
+}
+
+::selection {
+  background: var(--color-poppy-purple);
+  color: #000000;
 }
 
 /* =============================================
-   SELECTION COLOR — unified
+   BUTTONS (Poppy / Bouncy Style)
    ============================================= */
-::selection {
-  background: var(--accent-yellow);
-  color: #000;
+.ghost-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  background: var(--color-ink-dark);
+  color: var(--color-ink-light);
+  font-family: var(--font-control);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border-radius: 9999px; /* Fully rounded pill */
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.3s ease, color 0.3s ease;
+  z-index: 1;
+  border: none;
+}
+
+.ghost-btn:hover {
+  transform: scale(1.05);
+  background: var(--color-poppy-purple);
+  color: var(--color-ink-dark);
+}
+
+.ghost-btn:active {
+  transform: scale(0.95);
+}
+
+/* =============================================
+   SCROLL INDICATOR
+   ============================================= */
+@keyframes scroll-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(8px); opacity: 1; }
+}
+.scroll-indicator {
+  animation: scroll-bounce 2s ease-in-out infinite;
+}
+
+/* =============================================
+   FLOAT (Education Timeline Cards)
+   ============================================= */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+/* =============================================
+   MARQUEE
+   ============================================= */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+}
+
+/* =============================================
+   STICKY HEADER
+   ============================================= */
+.sticky-header {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-150%);
+  z-index: 80;
+  background: rgba(250, 250, 250, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 9999px;
+  will-change: transform;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding: 8px 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+}
+
+.sticky-header--visible {
+  transform: translateX(-50%) translateY(0);
 }
 
 /* =============================================
@@ -91,8 +188,12 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-stopped { overflow: hidden; }
 
 /* =============================================
-   SPLITTING.JS
+   UTILITIES
    ============================================= */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* SplitText styles */
 .word {
   overflow: hidden;
   display: inline-flex;
@@ -100,86 +201,21 @@ html.lenis, html.lenis body { height: auto; }
 }
 .char { display: inline-block; }
 
-/* =============================================
-   MARQUEE / TICKER
-   ============================================= */
-@keyframes ticker {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-.animate-scroll      { animation: ticker 20s linear infinite; }
-.animate-scroll-slow { animation: ticker 40s linear infinite; }
-
-/* Pause on hover for accessibility */
-.animate-scroll:hover, .animate-scroll-slow:hover {
-  animation-play-state: paused;
-}
-
-/* =============================================
-   SECTION UTILITY CLASSES
-   ============================================= */
-.section-dark  { background-color: var(--bg-dark);  color: var(--fg-dark);  }
-.section-light { background-color: var(--bg-light); color: var(--fg-light); }
-
-/* =============================================
-   HIDE SCROLLBAR (horizontal carousels)
-   ============================================= */
-.hide-scrollbar::-webkit-scrollbar { display: none; }
-.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-/* =============================================
-   OFF-WHITE QUOTE PUNCTUATION
-   The .ow-quote wrapper adds the branded
-   typographic quotation marks used throughout
-   ============================================= */
-.ow-quote::before { content: '"'; }
-.ow-quote::after  { content: '"'; }
-
-/* =============================================
-   SECTION DIVIDERS — thin horizontal rule
-   used between sections for visual rhythm
-   ============================================= */
-.section-rule {
-  height: 1px;
-  width: 100%;
-  background: currentColor;
-  opacity: 0.15;
-}
-
-/* =============================================
-   HOVER TARGET INDICATOR
-   Adds a subtle underline strip for nav links
-   ============================================= */
-.link-underline {
+/* Link hover underline reveal */
+.link-reveal {
   position: relative;
+  display: inline-block;
 }
-.link-underline::after {
+.link-reveal::after {
   content: '';
   position: absolute;
   bottom: -2px;
   left: 0;
   width: 0;
   height: 2px;
-  background: var(--accent-red);
-  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  background: currentColor;
+  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.link-underline:hover::after { width: 100%; }
-
-/* =============================================
-   REVEAL LINE (used in Contact & elsewhere)
-   ============================================= */
-.reveal-line-wrapper { overflow: hidden; display: block; }
-
-/* =============================================
-   NOISE TEXTURE OVERLAY
-   Subtle grain for premium feel on dark sections
-   ============================================= */
-.noise-overlay::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.03;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  background-size: 256px 256px;
+.link-reveal:hover::after {
+  width: 100%;
 }
